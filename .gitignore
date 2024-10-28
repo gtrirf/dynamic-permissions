@@ -4,3 +4,4 @@ __pycache__
 apps/core/migrations/0*.py
 apps/user/migrations/0*.py
 
+.idea
