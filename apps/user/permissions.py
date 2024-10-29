@@ -1,4 +1,5 @@
 from rest_framework.permissions import BasePermission
+from .tools import ACTIONS
 
 
 class RoleBasedAPIPermission(BasePermission):
@@ -7,11 +8,15 @@ class RoleBasedAPIPermission(BasePermission):
         if not role:
             return False
 
-        api_name = getattr(view, 'start_name', None).lower()
-        action = getattr(view, 'action', None)
+        api_name = getattr(view, 'start_name', None)
+        action = ACTIONS.get(request.method)
+        if not api_name or not action:
+            return False
 
         if action is None:
             return False
 
-        allowed_actions = role.api_actions.filter(api=api_name, action=action)
-        return allowed_actions.exists()
+        if isinstance(action, list):
+            return any(role.api_actions.filter(api=api_name.lower(), action=act).exists() for act in action)
+        else:
+            return role.api_actions.filter(api=api_name.lower(), action=action).exists()
