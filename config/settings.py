@@ -11,10 +11,14 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+import minio_storage
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+load_dotenv()
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -43,6 +47,7 @@ INSTALLED_APPS = [
     # external apps
     'drf_spectacular',
     'rest_framework',
+    'minio_storage',
 ]
 
 MIDDLEWARE = [
@@ -143,7 +148,24 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_URL = '/static/'
+# MEDIA_URL = 'http://localhost:9000/media/'
+# MEDIA_ROOT = None
+
+DEFAULT_FILE_STORAGE = "minio_storage.storage.MinioMediaStorage"
+STATICFILES_STORAGE = "minio_storage.storage.MinioStaticStorage"
+
+MINIO_STORAGE_ENDPOINT = 'localhost:9000'
+MINIO_STORAGE_ACCESS_KEY = 'vTFf8JnYighoEWYmgcS6'
+MINIO_STORAGE_SECRET_KEY = 'M5rbafx4xdjU12yt7dWF5BHXju5W4Qs2a8O6zte8'
+MINIO_STORAGE_USE_HTTPS = False
+MINIO_STORAGE_MEDIA_BUCKET_NAME = 'media'
+MINIO_STORAGE_STATIC_BUCKET_NAME = 'static'
+MINIO_STORAGE_AUTO_CREATE_MEDIA_BUCKET = True
+MINIO_STORAGE_AUTO_CREATE_STATIC_BUCKET = True
+# MINIO_STORAGE_STATIC_USE_PRESIGNED = True
+# MINIO_STORAGE_MEDIA_USE_PRESIGNED = True
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field

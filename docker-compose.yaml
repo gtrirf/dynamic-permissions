@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"   # MinIO API uchun port
+      - "9001:9001"   # MinIO Web UI uchun port
+    volumes:
+      - minio_data:/data
+    networks:
+      - minio_network
+
+  django:
+    build:
+      context: .  # Django loyiha papkasiga nisbiy yo'l
+    container_name: django_app
+    command: >
+      sh -c "python manage.py collectstatic --noinput && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/app    # Django loyihangiz papkasini konteyner ichiga ulash
+    ports:
+      - "8000:8000"  # Django serveri uchun port
+    environment:
+      - MINIO_STORAGE_ENDPOINT=localhost:9000
+      - MINIO_STORAGE_ACCESS_KEY=minioadmin
+      - MINIO_STORAGE_SECRET_KEY=minioadmin
+      - MINIO_STORAGE_USE_HTTPS=False
+      - MINIO_STORAGE_MEDIA_BUCKET_NAME=media
+      - MINIO_STORAGE_AUTO_CREATE_MEDIA_BUCKET=True
+      - MINIO_STORAGE_STATIC_BUCKET_NAME=static
+      - MINIO_STORAGE_AUTO_CREATE_STATIC_BUCKET=True
+      - MINIO_STORAGE_STATIC_USE_PRESIGNED=True
+      - MINIO_STORAGE_MEDIA_USE_PRESIGNED=True
+    depends_on:
+      - minio
+    networks:
+      - minio_network
+
+volumes:
+  minio_data:
+
+networks:
+  minio_network:
+    driver: bridge

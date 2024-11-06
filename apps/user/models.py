@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from apps.user.tools import API_ACTION_CHOICES
+from django.utils.safestring import mark_safe
 
 
 class APIAction(models.Model):
@@ -21,8 +22,15 @@ class Role(models.Model):
 
 
 class CustomUser(AbstractUser):
+    image = models.ImageField(upload_to='', null=True, blank=True)
     role = models.ForeignKey(Role, on_delete=models.SET_NULL, null=True, blank=True)
 
+    def photo_tag(self):
+        if self.image:
+            return mark_safe(
+                f'<img src="{self.image.url}" width="300px" />'
+            )
+        return "No Image"
 
-
+    photo_tag.short_description = "My uploaded photo"
 
