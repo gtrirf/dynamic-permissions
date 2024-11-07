@@ -22,7 +22,7 @@ class Role(models.Model):
 
 
 class CustomUser(AbstractUser):
-    image = models.ImageField(upload_to='', null=True, blank=True)
+    image = models.ImageField(upload_to='user_img', null=True, blank=True)
     role = models.ForeignKey(Role, on_delete=models.SET_NULL, null=True, blank=True)
 
     def photo_tag(self):
